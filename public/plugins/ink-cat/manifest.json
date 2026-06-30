@@ -1,0 +1,10 @@
+{
+  "id": "ink-cat-pet",
+  "name": "墨猫桌宠",
+  "version": "1.0.0",
+  "type": "ui-component",
+  "description": "一只随音乐摆动的水墨猫，挂载到 Home 页桌宠区域",
+  "entry": "./index.js",
+  "permissions": ["audio-data", "ui-mount", "storage"],
+  "dependencies": []
+}

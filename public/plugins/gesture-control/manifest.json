@@ -1,0 +1,10 @@
+{
+  "id": "gesture-control",
+  "name": "手势控制",
+  "version": "1.0.0",
+  "type": "gesture",
+  "description": "用手势与粒子互动——张开手掌扩散、握拳收缩、捏合吸引、挥动流向、旋转扭曲",
+  "entry": "./index.js",
+  "permissions": ["camera", "audio-data", "ui-mount"],
+  "dependencies": []
+}

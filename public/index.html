@@ -6,6 +6,7 @@
 <title>墨Radio</title>
 <meta name="referrer" content="no-referrer">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@200;300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&family=UnifrakturCook:wght@700&family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<script src="radio-core.js"></script>
 <script src="vendor/three.r128.min.js"></script>
 <script src="vendor/music-tempo.min.js"></script>
 <script src="vendor/gsap.min.js"></script>
@@ -1849,6 +1850,82 @@ html.control-glass-svg-ok #visual-guide-btn:hover{
   .lyric-color-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 
+/* ─── 桌宠显示区（插件挂载）────────────────────── */
+.pet-area {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#pet-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* 状态气泡（插件可用） */
+.pet-bubble {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  background: rgba(255,255,255,.12);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: rgba(255,255,255,.75);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(.22,1,.36,1), opacity 0.3s;
+  opacity: 0;
+}
+.pet-bubble.visible {
+  transform: translateX(-50%) scale(1);
+  opacity: 1;
+}
+
+/* ─── 控制台 Tab 栏 ──────────────────────────────────── */
+.fx-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  margin-bottom: 12px;
+}
+.fx-tab {
+  flex: 1;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.40);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.fx-tab:hover {
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.70);
+}
+.fx-tab.active {
+  background: rgba(var(--fc-accent-rgb),.15);
+  color: rgba(var(--fc-accent-rgb),.90);
+}
+.fx-tab-content {
+  display: none;
+  overflow: visible;
+}
+.fx-tab-content.active {
+  display: block;
+}
+
 /* ─── 印章（中国传统印章风格）────────────────────── */
 .ink-stamp {
   position: fixed;
@@ -1998,9 +2075,14 @@ html.control-glass-svg-ok #visual-guide-btn:hover{
 <section id="empty-home" aria-label="Mineradio home">
   <div class="empty-home-shell">
     <div class="home-hero">
-      <div class="home-hero-inner home-construction-inner">
-        <div class="home-title home-construction-title">🚧此处施工，敬请期待🚧</div>
-        <button class="home-chip home-console-chip" type="button" onclick="openHomePlayerConsole()">展开播放器控制台</button>
+      <div class="home-hero-inner" style="flex-direction:column;gap:16px;">
+        <!-- 桌宠显示区（纯容器，由插件挂载内容） -->
+        <div id="pet-area" class="pet-area">
+          <div id="pet-slot"></div>
+        </div>
+        <div style="text-align:center;">
+          <button class="home-chip home-console-chip" type="button" onclick="openHomePlayerConsole()">展开播放器控制台</button>
+        </div>
       </div>
     </div>
 
@@ -2081,6 +2163,13 @@ html.control-glass-svg-ok #visual-guide-btn:hover{
 <div id="fx-panel">
   <div class="fx-head">
     <div><div class="fx-title">视觉控制台</div><div class="fx-sub">MINERADIO VISUALS · 鼠标移开自动隐藏</div></div>
+  </div>
+
+  <!-- 插件管理入口（顶级按钮） -->
+  <div style="margin-bottom:12px;">
+    <button class="fx-mini-btn" style="width:100%;" onclick="document.getElementById('plugin-modal').classList.toggle('show')">
+      🧩 插件管理
+    </button>
   </div>
 
   <div class="fx-section-label">视觉预设</div>
@@ -2335,6 +2424,23 @@ html.control-glass-svg-ok #visual-guide-btn:hover{
     <button class="fx-mini-btn" onclick="resetFx()">恢复默认</button>
   </div>
 </div>
+
+<!-- 插件管理弹窗 -->
+<div id="plugin-modal" style="position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.60);backdrop-filter:blur(8px);">
+  <div style="width:380px;max-height:70vh;background:rgba(18,18,24,.95);border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;">
+    <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:14px;font-weight:600;color:rgba(255,255,255,.85);">插件管理</span>
+      <button onclick="document.getElementById('plugin-modal').classList.remove('show')" style="background:none;border:0;color:rgba(255,255,255,.40);cursor:pointer;font-size:18px;">×</button>
+    </div>
+    <div style="padding:16px 20px;overflow-y:auto;flex:1;">
+      <div id="plugin-list" style="margin-bottom:12px;"></div>
+      <button class="fx-mini-btn ghost" style="width:100%;" onclick="importPlugin()">+ 导入插件</button>
+    </div>
+  </div>
+</div>
+<style>
+  #plugin-modal.show { display: flex !important; }
+</style>
 
 <!-- LX 音源管理面板 -->
 <div id="lx-source-panel" style="position:fixed;top:50%;right:0;transform:translateY(-50%);z-index:20;width:280px;max-height:70vh;overflow-y:auto;background:rgba(12,12,18,.85);border:1px solid rgba(255,255,255,.06);border-radius:14px 0 0 14px;backdrop-filter:blur(40px) saturate(1.4);-webkit-backdrop-filter:blur(40px) saturate(1.4);box-shadow:0 12px 40px rgba(0,0,0,.3);display:none;transition:transform .3s,opacity .3s"></div>
@@ -16283,6 +16389,10 @@ function applyStartupStarfieldPreset() {
     syncFxUniforms();
   }
 }
+// ─── 桌宠系统（插件化，由 ink-cat 插件驱动）────────────────
+// 桌宠逻辑全部在 plugins/ink-cat/index.js 中
+// Home 页的 #pet-area 是插件挂载槽位
+
 function updateEmptyHomeVisibility(opts) {
   opts = opts || {};
   var show = shouldShowEmptyHome();
@@ -16543,6 +16653,8 @@ function isHomeBlankDismissClick(e) {
     '#source-fallback-notice',
     '.modal-mask',
     '.modal',
+    '#pet-area',
+    '#ink-cat',
     '.track-detail-modal',
     '.cover-color-pop',
     '.color-lab-pop'
@@ -19006,6 +19118,14 @@ async function playQueueAt(idx, opts) {
       markPlayPhase('visual-prep');
       updateNowPlayingUi();
       showPlayingIndicator();
+      // 广播切歌事件给插件
+      if (window.Radio && playQueue[idx]) {
+        window.Radio.events.emit('audio:track-change', {
+          name: playQueue[idx].name || '',
+          artist: playQueue[idx].singer || playQueue[idx].artist || '',
+          cover: playQueue[idx].cover || ''
+        });
+      }
       initAudio();
       resumeAudioAnalysis();
       return;
@@ -19267,6 +19387,7 @@ async function attemptAudioPlay(opts) {
       await resumeAudioAnalysis();
       switchPlaybackVisualToEmily();
       playing = true; setPlayIcon(true);
+      if (window.Radio) window.Radio.events.emit('player:play');
       // 恢复流体流动
       if (window.FluidEngine) window.FluidEngine.resume();
     if (opts.fade !== false) startPlaybackFadeIn();
@@ -19278,6 +19399,7 @@ async function attemptAudioPlay(opts) {
     console.warn('Audio play blocked:', err && (err.message || err));
     restorePlaybackGain();
     playing = false; setPlayIcon(false);
+    if (window.Radio) window.Radio.events.emit('player:pause');
     hideLoading();
     forcePlaybackControlsInteractive();
     if (!opts.silent) showToast(opts.manual ? '播放启动失败, 请重新选择歌曲' : '播放被系统拦截, 请点击播放按钮');
@@ -23089,6 +23211,181 @@ function toggleFxPanel(force) {
   el.classList.remove('show', 'closing');
   setPeek(el, true, 'fx');
 }
+// ─── 控制台 Tab 切换 ─────────────────────────────────────
+function switchFxTab(tabName) {
+  // 切换 tab 按钮
+  document.querySelectorAll('.fx-tab').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.tab === tabName);
+  });
+  // 切换 tab 内容
+  document.querySelectorAll('.fx-tab-content').forEach(function(content) {
+    content.classList.toggle('active', content.id === 'fx-tab-' + tabName);
+  });
+}
+
+// ─── 插件管理 ─────────────────────────────────────────────
+function renderPluginList() {
+  var list = document.getElementById('plugin-list');
+  if (!list || !window.Radio) return;
+
+  var plugins = window.Radio.plugins.list();
+  if (plugins.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(255,255,255,.35);font-size:12px;">暂无插件</div>';
+    return;
+  }
+
+  list.innerHTML = plugins.map(function(p) {
+    // 获取插件的完整 manifest（包含 settings）
+    var entry = window.Radio.plugins._plugins[p.id];
+    var manifest = entry ? entry.manifest : {};
+    var settings = manifest.settings || {};
+
+    // 构建设置表单
+    var settingsHtml = '';
+    if (Object.keys(settings).length > 0 && p.active) {
+      settingsHtml = '<div class="plugin-settings" style="margin-top:8px;padding:8px;background:rgba(255,255,255,.03);border-radius:6px;">';
+      for (var key in settings) {
+        var setting = settings[key];
+        var val = getPluginSetting(p.id, key, setting.default);
+        if (setting.type === 'range') {
+          settingsHtml += '<div style="margin-bottom:6px;">' +
+            '<div style="display:flex;justify-content:space-between;margin-bottom:2px;">' +
+              '<span style="font-size:10px;color:rgba(255,255,255,.5);">' + escHtml(setting.label || key) + '</span>' +
+              '<span style="font-size:10px;color:rgba(255,255,255,.35);font-mono;">' + val.toFixed(2) + '</span>' +
+            '</div>' +
+            '<input type="range" min="' + setting.min + '" max="' + setting.max + '" step="' + (setting.step || 0.01) + '" value="' + val + '" ' +
+              'oninput="updatePluginSetting(\'' + p.id + '\',\'' + key + '\',parseFloat(this.value))" ' +
+              'style="width:100%;height:4px;appearance:none;background:rgba(255,255,255,.1);border-radius:2px;outline:none;cursor:pointer;' +
+              '[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-red-400 [&::-webkit-slider-thumb]:rounded-full;">' +
+          '</div>';
+        } else if (setting.type === 'boolean') {
+          settingsHtml += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">' +
+            '<span style="font-size:10px;color:rgba(255,255,255,.5);">' + escHtml(setting.label || key) + '</span>' +
+            '<button onclick="updatePluginSetting(\'' + p.id + '\',\'' + key + '\',' + !val + ')" ' +
+              'style="width:32px;height:18px;border-radius:9px;border:0;cursor:pointer;transition:background 0.2s;' +
+              'background:' + (val ? 'rgba(0,245,212,.6)' : 'rgba(255,255,255,.15)') + ';">' +
+              '<div style="width:14px;height:14px;border-radius:50%;background:#fff;margin:2px;' +
+                'transition:transform 0.2s;transform:translateX(' + (val ? '14px' : '0') + ');"></div>' +
+            '</button>' +
+          '</div>';
+        }
+      }
+      settingsHtml += '</div>';
+    }
+
+    return '<div class="plugin-item" style="padding:8px 12px;background:rgba(255,255,255,.03);border-radius:8px;margin-bottom:4px;">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;">' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:12px;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(p.name) + '</div>' +
+          '<div style="font-size:10px;color:rgba(255,255,255,.35);">v' + escHtml(p.version) + ' · ' + escHtml(p.type) + '</div>' +
+        '</div>' +
+        '<button onclick="togglePlugin(\'' + p.id + '\')" style="' +
+          'width:40px;height:22px;border-radius:11px;border:0;cursor:pointer;transition:background 0.2s;overflow:hidden;' +
+          'background:' + (p.active ? 'rgba(0,245,212,.6)' : 'rgba(255,255,255,.15)') + ';">' +
+          '<div style="width:18px;height:18px;border-radius:50%;background:#fff;margin:2px;' +
+            'transition:transform 0.2s;transform:translateX(' + (p.active ? '18px' : '0') + ');"></div>' +
+        '</button>' +
+      '</div>' +
+      settingsHtml +
+    '</div>';
+  }).join('');
+}
+
+// 获取插件设置
+function getPluginSetting(pluginId, key, defaultVal) {
+  try {
+    var stored = localStorage.getItem('radio-plugin:' + pluginId + ':setting:' + key);
+    return stored !== null ? JSON.parse(stored) : (defaultVal || 0);
+  } catch (e) { return defaultVal || 0; }
+}
+
+// 更新插件设置
+function updatePluginSetting(pluginId, key, value) {
+  try {
+    localStorage.setItem('radio-plugin:' + pluginId + ':setting:' + key, JSON.stringify(value));
+    // 通知插件设置变化
+    if (window.Radio) {
+      window.Radio.events.emit('plugin:setting-changed', { id: pluginId, key: key, value: value });
+    }
+    renderPluginList();
+  } catch (e) {
+    console.error('[PluginUI] Setting update error:', e);
+  }
+}
+
+async function togglePlugin(id) {
+  if (!window.Radio) return;
+  var entry = window.Radio.plugins._plugins[id];
+  if (!entry) return;
+
+  var isActive = !!window.Radio.plugins._active[id];
+
+  if (isActive) {
+    // ─── 关闭插件 ───────────────────────────────────
+    // 先实际停用（需要 _active 仍为 true）
+    try {
+      await window.Radio.plugins.deactivate(id);
+    } catch (e) {
+      console.error('[PluginUI] Deactivate error:', e);
+    }
+    // 停用后更新 UI
+    localStorage.setItem('radio-plugin-active:' + id, 'false');
+    renderPluginList();
+  } else {
+    // ─── 打开插件 ───────────────────────────────────
+    try {
+      if (!entry.loaded && entry.entryUrl) {
+        // 需要先加载代码
+        await window.Radio.plugins.loadAndActivate(id);
+      } else {
+        // 代码已加载，直接激活
+        window.Radio.plugins.activate(id);
+      }
+      // 激活成功后更新 UI
+      localStorage.setItem('radio-plugin-active:' + id, 'true');
+    } catch (e) {
+      console.error('[PluginUI] Activate error:', e);
+      window.Radio.plugins._active[id] = false;
+      localStorage.setItem('radio-plugin-active:' + id, 'false');
+    }
+    renderPluginList();
+  }
+}
+
+function importPlugin() {
+  if (!window.desktopWindow) {
+    showToast('请在桌面版中使用此功能');
+    return;
+  }
+  // 通过文件选择器导入插件
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.js';
+  input.onchange = function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        var code = ev.target.result;
+        // 执行插件代码
+        eval(code);
+        showToast('插件已导入: ' + file.name);
+        renderPluginList();
+      } catch (err) {
+        showToast('插件导入失败: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// 初始化插件列表
+if (window.Radio) {
+  renderPluginList();
+}
+
 function resetFx() {
   var savedCam = fx.cam;
   var savedShelf = fx.shelf;
@@ -26790,6 +27087,12 @@ function dismissSplash() {
     document.body.classList.remove('splash-revealing');
     markAppPerf('home-revealed');
     if (s && s.parentNode) s.style.display = 'none';
+
+    // ─── 进入 Home 页后激活插件 ───────────────────────
+    if (window.Radio) {
+      window.Radio.events.emit('app:home-entered');
+    }
+
     requestAnimationFrame(function(){
       var homeShown = updateEmptyHomeVisibility({ forceLoad: true });
       if (!homeShown && shouldForceEmptyHomeAfterSplash()) {
@@ -26825,6 +27128,39 @@ document.addEventListener('DOMContentLoaded', function(){
   markAppPerf('dom-content-loaded');
   armSplashSoundFallback();
   prewarmHomeWallpaperPreview();
+
+  // ─── 注册桌宠槽位 ─────────────────────────────────────────
+  var petSlot = document.getElementById('pet-slot');
+  if (petSlot && window.Radio) {
+    window.Radio.ui.registerSlot('pet', petSlot);
+  }
+
+  // ─── 注册插件（不立即激活，等 Home 页进入后）────────────
+  if (window.Radio) {
+    // 先注册插件（加载 manifest，但不激活）
+    window.Radio.plugins.loadAll().then(function() {
+      if (typeof renderPluginList === 'function') renderPluginList();
+    });
+
+    // 监听手势数据（用于流体驱动）
+    window.Radio.events.on('gesture:data', function(data) {
+      window._gestureData = data;
+    });
+
+    // Home 页进入后激活插件（恢复上次状态）
+    window.Radio.events.on('app:home-entered', function() {
+      var plugins = window.Radio.plugins.list();
+      plugins.forEach(function(p) {
+        var stored = localStorage.getItem('radio-plugin-active:' + p.id);
+        // 默认激活，除非用户明确禁用过
+        var shouldActivate = stored === null ? true : stored === 'true';
+        if (shouldActivate && !p.active) {
+          window.Radio.plugins.activate(p.id);
+        }
+      });
+      if (typeof renderPluginList === 'function') renderPluginList();
+    });
+  }
   function requestSplashEnter() {
     playMineradioIntroSound();
     if (splashReadyToEnter) dismissSplash();
@@ -27526,6 +27862,15 @@ function animate() {
   uniforms.uBeat.value   = beatPulse;
   uniforms.uEnergy.value = audioEnergy;
 
+  // 广播音频数据给插件
+  if (window.Radio) {
+    window.Radio.events.emit('audio:data', {
+      bass: bass, mid: mid, treble: treble,
+      volume: audioEnergy, bpm: 0, beat: beatPulse > 0.3, kick: beatPulse > 0.3
+    });
+    if (beatPulse > 0.3) window.Radio.events.emit('audio:beat', { bass: bass, mid: mid });
+  }
+
   // 流体水墨引擎：音频驱动墨滴
   if (window.FluidEngine && playing) {
     window.FluidEngine.audioSplat({
@@ -27536,6 +27881,68 @@ function animate() {
       beat: beatPulse > 0.3
     });
   }
+
+  // 手势驱动流体
+  if (window.FluidEngine && window._gestureData && window._gestureData.detected) {
+    var gd = window._gestureData;
+    var gColor = { r: 0.15 + gd.openness * 0.2, g: 0.12 + gd.pinch * 0.15, b: 0.10 + gd.rotation * 0.1 };
+
+    switch (gd.gesture) {
+      case 'open':
+        // 张开手掌：从手掌位置向外扩散墨滴
+        for (var gi = 0; gi < 3; gi++) {
+          var ga = Math.random() * Math.PI * 2;
+          var gf = 200 + gd.openness * 400;
+          window.FluidEngine.addSplat(
+            0.5 + gd.palmX * 0.3,
+            0.5 + gd.palmY * 0.3,
+            Math.cos(ga) * gf,
+            Math.sin(ga) * gf,
+            gColor
+          );
+        }
+        break;
+      case 'fist':
+        // 握拳：中心收缩，添加向内的力
+        window.FluidEngine.addSplat(0.5, 0.5, 0, 0, gColor);
+        break;
+      case 'pinch':
+        // 捏合：在捏合位置添加小墨滴
+        window.FluidEngine.addSplat(
+          0.5 + gd.palmX * 0.3,
+          0.5 + gd.palmY * 0.3,
+          gd.velocityX * 50,
+          gd.velocityY * 50,
+          gColor
+        );
+        break;
+      case 'swipe':
+        // 挥动：沿挥动方向添加流体
+        window.FluidEngine.addSplat(
+          0.5 + gd.palmX * 0.3,
+          0.5 + gd.palmY * 0.3,
+          gd.velocityX * 150,
+          gd.velocityY * 150,
+          gColor
+        );
+        break;
+      case 'punch':
+        // 挥拳：中心爆发大墨团
+        var punchColor = { r: 0.3, g: 0.1, b: 0.05 }; // 深墨色
+        for (var pi = 0; pi < 8; pi++) {
+          var pa = (pi / 8) * Math.PI * 2;
+          var pf = 500 + Math.abs(gd.velocityZ) * 300;
+          window.FluidEngine.addSplat(
+            0.5, 0.5,
+            Math.cos(pa) * pf,
+            Math.sin(pa) * pf,
+            punchColor
+          );
+        }
+        break;
+    }
+  }
+
   uniforms.uMouseXY.value.set(mouseWorld.x, mouseWorld.y);
   uniforms.uMouseActive.value = mouseActive ? 1 : 0;
   var skullBackdropDim = fx && fx.preset === SKULL_PRESET_INDEX ? 0.58 : 1;
