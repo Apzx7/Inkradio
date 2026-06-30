@@ -27147,17 +27147,30 @@ document.addEventListener('DOMContentLoaded', function(){
       window._gestureData = data;
     });
 
-    // Home 页进入后激活插件（恢复上次状态）
+    // Home 页进入后激活插件（延迟加载，不阻塞 UI，只执行一次）
+    var pluginsActivated = false;
     window.Radio.events.on('app:home-entered', function() {
+      if (pluginsActivated) return;
+      pluginsActivated = true;
+
+      var toActivate = [];
       var plugins = window.Radio.plugins.list();
       plugins.forEach(function(p) {
         var stored = localStorage.getItem('radio-plugin-active:' + p.id);
-        // 默认激活，除非用户明确禁用过
         var shouldActivate = stored === null ? true : stored === 'true';
         if (shouldActivate && !p.active) {
-          window.Radio.plugins.activate(p.id);
+          toActivate.push(p.id);
         }
       });
+
+      // 延迟加载，不阻塞首页渲染
+      window.Radio.plugins.activateDeferred(toActivate);
+
+      // 监听插件崩溃
+      window.Radio.events.on('plugin:error', function(data) {
+        console.warn('[Plugin] 插件崩溃已自动禁用:', data.id, data.error);
+      });
+
       if (typeof renderPluginList === 'function') renderPluginList();
     });
   }

@@ -1,0 +1,15 @@
+{
+  "id": "ink-lyrics",
+  "name": "水墨歌词",
+  "version": "1.0.0",
+  "type": "ui-component",
+  "description": "中国水墨风格歌词动画——呼吸、漂浮、墨迹扩散、毛笔收笔、节奏同步",
+  "entry": "./index.js",
+  "permissions": ["audio-data", "ui-mount"],
+  "settings": {
+    "breathScale": { "type": "range", "min": 0.01, "max": 0.08, "default": 0.03, "label": "呼吸幅度" },
+    "floatAmount": { "type": "range", "min": 1, "max": 8, "default": 3, "label": "漂浮幅度(px)" },
+    "inkSpreadDuration": { "type": "range", "min": 300, "max": 1500, "default": 800, "label": "墨迹扩散(ms)" },
+    "beatBounce": { "type": "range", "min": 2, "max": 15, "default": 6, "label": "节拍弹起(px)" }
+  }
+}

@@ -112,9 +112,75 @@ export default {
 
 ## 开发运行
 
+### 环境要求
+
+- Node.js >= 18
+- npm >= 9
+- Windows 10/11 (x64)
+
+### 快速开始
+
 ```bash
+# 克隆仓库
+git clone https://github.com/Apzx7/Inkradio.git
+cd Inkradio
+
+# 安装依赖
 npm install
+
+# 启动开发模式
 npm start
+```
+
+### 常用命令
+
+```bash
+npm start              # 启动 Electron 开发模式
+npm run build:win      # 构建 Windows NSIS 安装包
+npm run build:win:dir  # 构建免安装目录版本（调试用）
+```
+
+### 项目结构
+
+```text
+├── desktop/           # Electron 主进程
+│   ├── main.js        # 入口：窗口管理、IPC、生命周期
+│   ├── preload.js     # contextBridge API
+│   ├── lx-sandbox.js  # LX 音源沙箱
+│   └── lx-preload.js  # 沙箱 preload
+├── public/            # 渲染进程（前端）
+│   ├── index.html     # 主界面（1.3MB 单文件）
+│   ├── radio-core.js  # 插件系统核心
+│   ├── fluid-engine.js # 水墨流体引擎
+│   ├── splash-shan-shui.js # 启动页
+│   ├── plugins/       # 插件目录
+│   │   ├── ink-cat/          # 墨猫桌宠
+│   │   ├── gesture-control/  # 手势控制
+│   │   └── ink-lyrics/       # 水墨歌词
+│   └── vendor/        # 第三方库（Three.js、GSAP）
+├── build/             # 安装器资源（图标、NSIS 脚本）
+├── server.js          # 本地 API 服务器
+├── dj-analyzer.js     # 节拍分析
+└── package.json
+```
+
+### 调试技巧
+
+- `Ctrl+Shift+I` 打开 DevTools
+- 主进程日志在终端输出
+- 插件日志前缀：`[Plugin:xxx]`
+- 流体引擎日志前缀：`[FluidEngine]`
+
+### 构建安装包
+
+```bash
+# Windows NSIS 安装包
+npm run build:win
+# 输出：dist/墨Radio-0.1.0-Setup.exe
+
+# 免安装目录版（调试用）
+npm run build:win:dir
+# 输出：dist/win-unpacked/
 ```
 
 ## 架构

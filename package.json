@@ -1,8 +1,8 @@
 {
-  "name": "mineradio",
-  "productName": "Mineradio",
-  "version": "1.1.1",
-  "description": "沉浸式音乐播放器，融合天气电台、歌词舞台、粒子视觉和 3D 歌单架。",
+  "name": "ink-radio",
+  "productName": "墨Radio",
+  "version": "0.1.0",
+  "description": "水墨风格音乐播放器，一切皆插件架构，粒子视觉 + 流体水墨 + 手势控制。",
   "author": "Mineradio",
   "main": "desktop/main.js",
   "private": true,
@@ -12,8 +12,8 @@
     "build:win:dir": "electron-builder --win dir"
   },
   "build": {
-    "appId": "com.mineradio.desktop",
-    "productName": "Mineradio",
+    "appId": "com.inkradio.desktop",
+    "productName": "墨Radio",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -34,7 +34,7 @@
     ],
     "asar": false,
     "win": {
-      "executableName": "Mineradio",
+      "executableName": "墨Radio",
       "icon": "build/icon.ico",
       "signAndEditExecutable": false,
       "target": [
@@ -52,14 +52,14 @@
       "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Mineradio",
+      "shortcutName": "墨Radio",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
       "installerSidebar": "build/installerSidebar.bmp",
       "uninstallerSidebar": "build/installerSidebar.bmp",
       "installerHeader": "build/installerHeader.bmp",
       "include": "build/installer.nsh",
-      "artifactName": "Mineradio-${version}-Setup.${ext}"
+      "artifactName": "墨Radio-${version}-Setup.${ext}"
     },
     "publish": [
       {

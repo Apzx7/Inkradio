@@ -221,21 +221,87 @@
   };
 
   // 自动扫描并注册 plugins/ 目录下的所有插件（不激活）
+  // 支持 requestIdleCallback 延迟加载非关键插件
   PluginManager.prototype.loadAll = async function () {
     try {
       var manifestFiles = await this._scanPluginDir();
       var self = this;
 
+      // 第一步：加载所有 manifest（轻量操作，立即执行）
       for (var i = 0; i < manifestFiles.length; i++) {
         await self.loadFromManifest(manifestFiles[i]);
       }
 
+      // 第二步：版本检查
       var ids = Object.keys(this._plugins);
-      console.log('[RadioPlugin] Registered ' + ids.length + ' plugins (not activated)');
-      this._ctx.events.emit('plugins:registered', { count: ids.length });
+      var validIds = [];
+      for (var j = 0; j < ids.length; j++) {
+        var entry = self._plugins[ids[j]];
+        if (!entry) continue;
+
+        // 检查 minAppVersion
+        var minVer = entry.manifest.minAppVersion;
+        if (minVer && self._version && self._compareVersions(self._version, minVer) < 0) {
+          console.warn('[RadioPlugin] Plugin "' + ids[j] + '" requires app version ' + minVer + ', current: ' + self._version);
+          continue;
+        }
+        validIds.push(ids[j]);
+      }
+
+      console.log('[RadioPlugin] Registered ' + validIds.length + ' plugins (not activated)');
+      this._ctx.events.emit('plugins:registered', { count: validIds.length });
     } catch (err) {
       console.error('[RadioPlugin] Failed to load plugins:', err);
     }
+  };
+
+  // 设置应用版本（用于 minAppVersion 检查）
+  PluginManager.prototype.setAppVersion = function (version) {
+    this._version = version;
+  };
+
+  // 版本比较：返回 -1(a<b), 0(a==b), 1(a>b)
+  PluginManager.prototype._compareVersions = function (a, b) {
+    var pa = a.split('.').map(Number);
+    var pb = b.split('.').map(Number);
+    for (var i = 0; i < Math.max(pa.length, pb.length); i++) {
+      var na = pa[i] || 0, nb = pb[i] || 0;
+      if (na < nb) return -1;
+      if (na > nb) return 1;
+    }
+    return 0;
+  };
+
+  // 延迟激活插件（用 requestIdleCallback，不阻塞主线程）
+  PluginManager.prototype.activateDeferred = function (ids) {
+    var self = this;
+    var i = 0;
+
+    function activateNext() {
+      if (i >= ids.length) return;
+      var id = ids[i++];
+      if (self._active[id]) {
+        activateNext();
+        return;
+      }
+
+      if (typeof requestIdleCallback !== 'undefined') {
+        requestIdleCallback(function (deadline) {
+          if (deadline.timeRemaining() > 10) {
+            self.loadAndActivate(id).then(activateNext).catch(activateNext);
+          } else {
+            activateNext();
+          }
+        });
+      } else {
+        // fallback: setTimeout
+        setTimeout(function () {
+          self.loadAndActivate(id).then(activateNext).catch(activateNext);
+        }, 0);
+      }
+    }
+
+    activateNext();
   };
 
   // 扫描插件目录
@@ -244,7 +310,7 @@
     var manifests = [];
 
     // 已知插件列表（可通过服务器目录列表动态获取）
-    var knownPlugins = ['ink-cat', 'gesture-control'];
+    var knownPlugins = ['ink-cat', 'gesture-control', 'ink-lyrics'];
 
     for (var i = 0; i < knownPlugins.length; i++) {
       var manifestPath = dir + '/' + knownPlugins[i] + '/manifest.json';
@@ -302,6 +368,26 @@
       }
     } catch (err) {
       console.error('[RadioPlugin] Activate failed "' + id + '":', err);
+      this._handlePluginError(id, err);
+    }
+  };
+
+  // 插件崩溃处理：自动禁用 + 通知用户
+  PluginManager.prototype._handlePluginError = function (id, err) {
+    // 标记为崩溃
+    this._active[id] = false;
+    this._ctx.events.emit('plugin:error', { id: id, error: err.message });
+    console.error('[RadioPlugin] Plugin "' + id + '" crashed, auto-disabled');
+
+    // 持久化禁用状态
+    try {
+      localStorage.setItem('radio-plugin-active:' + id, 'false');
+    } catch (e) { /* ignore */ }
+
+    // 尝试清理插件资源
+    var entry = this._plugins[id];
+    if (entry && entry.instance && entry.instance.deactivate) {
+      try { entry.instance.deactivate(); } catch (e) { /* ignore */ }
     }
   };
 
