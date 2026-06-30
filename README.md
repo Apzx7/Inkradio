@@ -180,7 +180,7 @@ npm run build:win
 
 # 免安装目录版（调试用）
 npm run build:win:dir
-# 输出：dist/win-unpacked/
+# 输出：dist/win-unpacked/墨Radio.exe
 ```
 
 ## 架构
