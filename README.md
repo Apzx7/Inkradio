@@ -65,6 +65,28 @@ Windows 用户可以在 GitHub Releases 中下载安装包。
 
 已经安装过旧版本的用户，建议卸载旧版本、隔离旧安装包后，再使用 `v1.1.1` 安装包纯净安装。
 
+## 二创分支：墨Radio
+
+基于 Mineradio 二创，采用「一切皆插件」架构，实现水墨风格视觉效果。
+
+| 分支 | 说明 | 状态 |
+| ---- | ---- | ---- |
+| `main` | Mineradio 原版 | 稳定 |
+| `everything-is-plugin` | 墨Radio 二创（插件架构 + 水墨视觉） | 开发中 |
+
+**墨Radio 核心特性：**
+
+- 🧩 插件架构（EventBus + CommandRegistry + PluginManager）
+- 🎨 水墨流体引擎（WebGL Navier-Stokes）
+- 🖌️ 千里江山图启动页
+- 🐱 墨猫桌宠插件
+- 🖐️ 手势控制插件（MediaPipe Hands）
+- 🎵 水墨歌词插件
+
+**下载墨Radio：** [v0.1.0 Release](https://github.com/Apzx7/Inkradio/releases/tag/v0.1.0)
+
+**开发者指南：** 见 `everything-is-plugin` 分支 README
+
 ## 开发运行
 
 ```bash
