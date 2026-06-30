@@ -1,6 +1,6 @@
 # 墨Radio
 
-![墨Radio](./docs/assets/readme/cinema-beat-smoke.png)
+![image.png](https://cdn.jsdelivr.net/gh/Apzx7/obsidian-images/img/20260630224205128.png)
 
 **墨Radio** 是一款 Windows 桌面沉浸式音乐播放器，基于 Mineradio 二创，采用「一切皆插件」架构，实现水墨风格视觉效果。
 
